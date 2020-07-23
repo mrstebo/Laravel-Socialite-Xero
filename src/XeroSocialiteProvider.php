@@ -162,10 +162,8 @@ class XeroSocialiteProvider extends AbstractProvider
 
         $response = $this->getHttpClient()->get($connectionsUrl, $this->getRequestOptions($token));
 
-        foreach (json_decode($response->getBody(), true) as $tenant)
-        {
-            if ($tenant['authEventId'] === $parsedToken->authentication_event_id && $tenant['tenantType'] === 'ORGANISATION')
-            {
+        foreach (json_decode($response->getBody(), true) as $tenant) {
+            if ($tenant['authEventId'] === $parsedToken->authentication_event_id && $tenant['tenantType'] === 'ORGANISATION') {
                 return [
                     'tenant_id' => $tenant['tenantId'],
                     'tenant_type' => $tenant['tenantType'],
