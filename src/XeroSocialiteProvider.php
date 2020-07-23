@@ -157,13 +157,14 @@ class XeroSocialiteProvider extends AbstractProvider
     protected function getAuthorizedTenantByToken($token)
     {
         $parsedToken = (new Parser())->parse($token);
+        $authEventId = $parsedToken->getClaim('authentication_event_id');
 
         $connectionsUrl = 'https://api.xero.com/connections';
 
         $response = $this->getHttpClient()->get($connectionsUrl, $this->getRequestOptions($token));
 
         foreach (json_decode($response->getBody(), true) as $tenant) {
-            if ($tenant['authEventId'] === $parsedToken->authentication_event_id && $tenant['tenantType'] === 'ORGANISATION') {
+            if ($tenant['authEventId'] === $authEventId && $tenant['tenantType'] === 'ORGANISATION') {
                 return [
                     'tenant_id' => $tenant['tenantId'],
                     'tenant_type' => $tenant['tenantType'],
@@ -189,8 +190,7 @@ class XeroSocialiteProvider extends AbstractProvider
     {
         return [
             'headers' => [
-                'Accept' => 'application/vnd.github.v3+json',
-                'Authorization' => 'token '.$token,
+                'Authorization' => 'Bearer '.$token,
             ],
         ];
     }
