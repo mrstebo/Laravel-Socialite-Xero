@@ -60,6 +60,7 @@ class XeroSocialiteProvider extends AbstractProvider
     {
         $parsedToken = (new Parser())->parse($token);
         $idToken = Arr::get($this->tokens, 'id_token');
+        $tenant = $this->getAuthorizedTenantByToken($token);
 
         $user = [
             'sub' => $parsedToken->getClaim('sub'),
@@ -67,6 +68,9 @@ class XeroSocialiteProvider extends AbstractProvider
             'email' => $this->getEmailByToken($idToken),
             'nickname' => $this->getNicknameByToken($idToken),
             'name' => $this->getNameByToken($idToken),
+            'tenant_id' => $tenant['tenant_id'],
+            'tenant_type' => $tenant['tenant_type'],
+            'tenant_name' => $tenant['tenant_name'],
         ];
 
         return $user;
@@ -79,7 +83,13 @@ class XeroSocialiteProvider extends AbstractProvider
     {
         return (new User())->setRaw($user)->map([
             'id' => $user['sub'],
-            'xero_userid' => $user['xero_userid'],
+            'xeroUserId' => $user['xero_userid'],
+            'email' => $user['email'],
+            'nickname' => $user['nickname'],
+            'name' => $user['name'],
+            'tenantId' => $user['tenant_id'],
+            'tenantType' => $user['tenant_type'],
+            'tenantName' => $user['tenant_name'],
         ]);
     }
 
@@ -136,5 +146,54 @@ class XeroSocialiteProvider extends AbstractProvider
             $parsedToken->getClaim('given_name'),
             $parsedToken->getClaim('family_name'),
         ]);
+    }
+
+    /**
+     * Get the authorized tenant for the given token.
+     *
+     * @param  string  $token
+     * @return string|null
+     */
+    protected function getAuthorizedTenantByToken($token)
+    {
+        $parsedToken = (new Parser())->parse($token);
+
+        $connectionsUrl = 'https://api.xero.com/connections';
+
+        $response = $this->getHttpClient()->get($connectionsUrl, $this->getRequestOptions($token));
+
+        foreach (json_decode($response->getBody(), true) as $tenant)
+        {
+            if ($tenant['authEventId'] === $parsedToken->authentication_event_id && $tenant['tenantType'] === 'ORGANISATION')
+            {
+                return [
+                    'tenant_id' => $tenant['tenantId'],
+                    'tenant_type' => $tenant['tenantType'],
+                    'tenant_name' => $tenant['tenantName'],
+                ];
+            }
+        }
+
+        return [
+            'tenant_id' => null,
+            'tenant_type' => null,
+            'tenant_name' => null,
+        ];
+    }
+
+    /**
+     * Get the default options for an HTTP request.
+     *
+     * @param string $token
+     * @return array
+     */
+    protected function getRequestOptions($token)
+    {
+        return [
+            'headers' => [
+                'Accept' => 'application/vnd.github.v3+json',
+                'Authorization' => 'token '.$token,
+            ],
+        ];
     }
 }
