@@ -2,7 +2,7 @@
 
 Xero OAuth2 Provider for Laravel Socialite
 
-[![Packagist](https://img.shields.io/packagist/v/mrstebo/laravel-socialite-xero.svg)](https://packagist.org/packages/mrstebo/laravel-socialite-xero)
+[![Packagist](https://img.shields.io/packagist/v/mrstebo/laravel-socialite-xero.svg?style=flat-square)](https://packagist.org/packages/mrstebo/laravel-socialite-xero)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![StyleCI](https://styleci.io/repos/281864728/shield)](https://styleci.io/repos/281864728)
 
