@@ -68,6 +68,7 @@ class XeroSocialiteProvider extends AbstractProvider
             'email' => $this->getEmailByToken($idToken),
             'nickname' => $this->getNicknameByToken($idToken),
             'name' => $this->getNameByToken($idToken),
+            'connection_id' => $tenant['connection_id'],
             'tenant_id' => $tenant['tenant_id'],
             'tenant_type' => $tenant['tenant_type'],
             'tenant_name' => $tenant['tenant_name'],
@@ -87,6 +88,7 @@ class XeroSocialiteProvider extends AbstractProvider
             'email' => $user['email'],
             'nickname' => $user['nickname'],
             'name' => $user['name'],
+            'connectionId' => $user['connection_id'],
             'tenantId' => $user['tenant_id'],
             'tenantType' => $user['tenant_type'],
             'tenantName' => $user['tenant_name'],
@@ -166,6 +168,7 @@ class XeroSocialiteProvider extends AbstractProvider
         foreach (json_decode($response->getBody(), true) as $tenant) {
             if ($tenant['authEventId'] === $authEventId && $tenant['tenantType'] === 'ORGANISATION') {
                 return [
+                    'connection_id' => $tenant['id'],
                     'tenant_id' => $tenant['tenantId'],
                     'tenant_type' => $tenant['tenantType'],
                     'tenant_name' => $tenant['tenantName'],
@@ -174,6 +177,7 @@ class XeroSocialiteProvider extends AbstractProvider
         }
 
         return [
+            'connection_id' => null,
             'tenant_id' => null,
             'tenant_type' => null,
             'tenant_name' => null,
